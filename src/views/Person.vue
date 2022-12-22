@@ -10,7 +10,7 @@
       <span id="username">{{ username }}</span>
     </div>
     <van-popover v-model:show="showCopyMUIDPopover" :offset="[15, 8]">
-      <van-grid square clickable horizontal style="min-width: 50px;min-height: 30px;">
+      <van-grid square clickable horizontal id="copyBtn" style="min-width: 50px;min-height: 30px;">
         <van-grid-item style="flex-basis: 100%;" text="复制" />
       </van-grid>
       <template #reference>
@@ -42,6 +42,7 @@ import { ref, onBeforeMount } from 'vue'
 import { Icon, Empty, Popover, Grid, GridItem, showToast } from 'vant'
 import getPersonInfo from '@/api/getPersonInfo'
 import getProfile from '@/api/getProfile'
+import { useClipboard } from '@/hooks/useClipboard'
 
 export default {
   name: 'meetuPerson',
@@ -75,17 +76,26 @@ export default {
     const showCopyMUIDPopover = ref(false)
     let timeoutEvent
     const touchStart = () => {
+      muidRef.value.classList.add('muid-touch')
       clearTimeout(timeoutEvent)
       timeoutEvent = setTimeout(() => {
         showCopyMUIDPopover.value = true
-      }, 400)
+      }, 350)
     }
     const touchMove = () => {
+      muidRef.value.classList.remove('muid-touch')
       clearTimeout(timeoutEvent)
     }
     const touchEnd = () => {
+      muidRef.value.classList.remove('muid-touch')
       clearTimeout(timeoutEvent)
     }
+
+    // 使用Clipboard.js实现复制的功能
+    useClipboard('#copyBtn', '.muid span', (status) => {
+      showCopyMUIDPopover.value = false
+      showToast({ message: status ? '复制成功' : '复制失败', position: 'bottom' })
+    })
 
     return {
       isEmpty,
@@ -164,6 +174,10 @@ export default {
     max-width: 150px;
     font-size: 13px;
     color: lightgray;
+  }
+  .muid-touch {
+    background-color: rgba(211, 211, 211, 0.42);
+    color: #70e2ff;
   }
   #sign {
     margin-top: 10px;

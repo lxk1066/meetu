@@ -4,7 +4,7 @@
       <van-icon name="arrow-left" size="25" />
     </template>
     <template #title>
-      <h4 class="nav-bar-username">{{ otherInfo.username }}</h4>
+      <h4 class="nav-bar-username" @click="openDetail('own')">{{ otherInfo.username }}</h4>
       <p v-if="anotherIsOnline" class="nav-bar-online-status"><van-icon name="checked" />在线</p>
       <p v-else class="nav-bar-online-status"><van-icon name="clear" color="#c6bfc7" />离线</p>
     </template>

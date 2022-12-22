@@ -229,7 +229,7 @@ export default {
     }
     // 点击聊天窗口的头像打开对应的个人详情页
     const openDetail = (to) => {
-      if (to === 'me') {
+      if (to === 'own') {
         router.push({ name: 'detail', params: { uid: otherInfo.id } })
       } else if (to === 'other') {
         router.push({ name: 'detail', params: { uid: ownInfo.id } })
@@ -295,7 +295,7 @@ export default {
     }
   }
 }
-.msg-row-to-me {
+.msg-row-to-own {
   flex-direction: row;
   .box-square {
     left: -5px;

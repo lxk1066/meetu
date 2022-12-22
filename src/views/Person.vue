@@ -94,6 +94,7 @@ export default {
     // 使用Clipboard.js实现复制的功能
     useClipboard('#copyBtn', '.muid span', (status) => {
       showCopyMUIDPopover.value = false
+      muidRef.value.classList.remove('muid-touch')
       showToast({ message: status ? '复制成功' : '复制失败', position: 'bottom' })
     })
 

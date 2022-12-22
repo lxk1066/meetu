@@ -23,7 +23,7 @@ export default {
     const isShow = ref(true)
     const btnIsDisable = ref(false) // 点击修改按钮后禁用按钮，实现防抖
     const ownMuid = ref(props.muid.toString())
-    const muidPattern = /\d{6,10}|[a-z0-9]{6,10}/
+    const muidPattern = /^[a-z0-9]{6,10}$/
 
     watch(isShow, (newVal) => {
       if (newVal === false) {

@@ -2,7 +2,8 @@
   <van-nav-bar title="通讯录" />
   <div class="function-area">
     <div class="function-item notice">通知</div>
-    <div class="function-item add-friends">添加好友</div>
+    <div class="function-item add-friends" @click="showSearchFriendPopup=true">添加好友</div>
+    <SearchFriend v-if="showSearchFriendPopup" @closePopup="showSearchFriendPopup=false"></SearchFriend>
   </div>
   <div class="address-book" :ref="addressBookBox">
     <van-index-bar>
@@ -143,13 +144,15 @@
 <script>
 import { ref } from 'vue'
 import { NavBar, IndexBar, IndexAnchor, Cell } from 'vant'
+import SearchFriend from '@/components/AddressBook/SearchFriend'
 export default {
   name: 'meetuAddressBook',
-  components: { [NavBar.name]: NavBar, [IndexAnchor.name]: IndexAnchor, [IndexBar.name]: IndexBar, [Cell.name]: Cell },
+  components: { [NavBar.name]: NavBar, [IndexAnchor.name]: IndexAnchor, [IndexBar.name]: IndexBar, [Cell.name]: Cell, SearchFriend },
   setup () {
     const addressBookBox = ref(null)
+    const showSearchFriendPopup = ref(false)
 
-    return { addressBookBox }
+    return { addressBookBox, showSearchFriendPopup }
   }
 }
 </script>
@@ -169,6 +172,9 @@ export default {
     text-align: center;
     line-height: 50px;
     background: linear-gradient(145deg,#c2ffd8,#465efb);
+    &:active {
+      background: linear-gradient(145deg, #aefac9, #2a44ec);
+    }
   }
   .notice {
   }

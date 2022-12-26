@@ -39,7 +39,7 @@ const routes = [
     name: 'addressBook',
     component: () => import('@/views/Home'),
     children: [
-      { path: '', name: 'addressBook', component: () => import('@/views/Chat/AddressBook') }
+      { path: '', name: 'addressBook', component: () => import('@/views/AddressBook/AddressBook') }
     ],
     meta: { to: 'addressBook' }
   },

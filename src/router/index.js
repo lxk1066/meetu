@@ -34,6 +34,12 @@ const routes = [
     props: true,
     component: () => import('@/views/User/Detail')
   },
+  { // 添加好友
+    path: '/addFriend/:uid',
+    name: 'addFriend',
+    props: true,
+    component: () => import('@/views/User/addFriendRequest')
+  },
   { // 通讯录
     path: '/addressBook',
     name: 'addressBook',

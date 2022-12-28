@@ -32,6 +32,10 @@
       description="TA 还没有发布任何动态哦！"
     />
   </div>
+  <div class="footer-fixed">
+    <div class="add-friend" v-if="isFriendDisable" @click="goAddFriend">添加好友</div>
+    <div class="chat" @click="goChatWindow">发消息</div>
+  </div>
 </template>
 
 <script>
@@ -41,9 +45,17 @@ import { useRouter } from 'vue-router'
 import getPersonInfo from '@/api/getPersonInfo'
 import getProfile from '@/api/getProfile'
 import { useClipboard } from '@/hooks/useClipboard'
+import isOwnFriend from '@/api/isOwnFriend'
+
 export default {
   name: 'meetuDetail',
-  components: { [Icon.name]: Icon, [Empty.name]: Empty, [Popover.name]: Popover, [Grid.name]: Grid, [GridItem.name]: GridItem },
+  components: {
+    [Icon.name]: Icon,
+    [Empty.name]: Empty,
+    [Popover.name]: Popover,
+    [Grid.name]: Grid,
+    [GridItem.name]: GridItem
+  },
   props: ['uid'],
   setup (props) {
     const router = useRouter()
@@ -54,23 +66,43 @@ export default {
     const username = ref('')
     const sign = ref('')
     const muid = ref('')
+    const isFriendDisable = ref(false)
     onBeforeMount(async () => {
-      const { data: res } = await getPersonInfo(props.uid)
-      if (res.code === 200) {
-        const data = res.data
+      const { data: res1 } = await getPersonInfo(props.uid)
+      if (res1.code === 200) {
+        const data = res1.data
         userProfile.value = getProfile(data.profile)
         username.value = data.username
         gender.value = data.gender
         sign.value = data.sign
         muid.value = data.muid
       } else {
-        showToast({ message: '网络错误', position: 'bottom' })
+        showToast({ message: '未找到该用户', position: 'bottom' })
+      }
+      const token = localStorage.getItem('meetu_jwt_token')
+      const uid = localStorage.getItem('meetu_uid')
+      if (uid === props.uid) isFriendDisable.value = false
+      else {
+        const { data: res2 } = await isOwnFriend(token, muid.value)
+        if (res2.code === 200) {
+          isFriendDisable.value = false
+        } else if (res2.code === 404) {
+          isFriendDisable.value = true
+        }
       }
     })
 
     // 点击返回按钮
     const goBack = async () => {
       await router.back()
+    }
+    // 点击添加好友按钮
+    const goAddFriend = () => {
+      router.push({ name: 'addFriend', params: { uid: props.uid } })
+    }
+    // 点击发消息按钮
+    const goChatWindow = () => {
+      router.push({ name: 'chatWindow', params: { uid: props.uid } })
     }
 
     // 屏幕长按MUID弹出复制气泡框
@@ -109,10 +141,13 @@ export default {
       muid,
       muidRef,
       showCopyMUIDPopover,
+      isFriendDisable,
       touchStart,
       touchMove,
       touchEnd,
-      goBack
+      goBack,
+      goAddFriend,
+      goChatWindow
     }
   }
 }
@@ -221,11 +256,33 @@ export default {
   position: relative;
   top: -20px;
   width: 100%;
-  min-height: calc(60% - 40px);
+  min-height: calc(60% + 20px);
   padding: 10px;
   box-sizing: border-box;
   background-color: white;
   border-radius: 20px 20px 0 0;
 }
-
+.footer-fixed {
+  z-index: 3;
+  width: 100%;
+  height: 60px;
+  position: fixed;
+  bottom: 20px;
+  display: flex;
+  justify-content: space-evenly;
+  & > div {
+    width: 120px;
+    height: 50px;
+    border-radius: 50px;
+    background-color: #bf8ff3;
+    text-align: center;
+    line-height: 50px;
+    font-weight: bold;
+    color: white;
+    box-shadow: 2px 2px 6px 1px rgba(0, 0, 0, 0.2);
+    &:active {
+      background-color: #d4b0fa;
+    }
+  }
+}
 </style>

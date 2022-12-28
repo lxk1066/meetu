@@ -1,10 +1,10 @@
 <template>
   <router-view />
   <van-tabbar class="tab-bar" v-model="active" route placeholder>
-    <van-tabbar-item to="/search" name="search" icon="search">匹配</van-tabbar-item>
-    <van-tabbar-item to="/addressBook" name="addressBook" icon="friends-o">通讯录</van-tabbar-item>
-    <van-tabbar-item to="/chatList" name="chat" icon="chat-o" :badge="unread" :badge-props="{ content: unread, max: 99 }">聊天</van-tabbar-item>
-    <van-tabbar-item to="/person" name="person" icon="user-o">个人</van-tabbar-item>
+    <van-tabbar-item class="tabbar-item" to="/search" name="search" icon="search">匹配</van-tabbar-item>
+    <van-tabbar-item class="tabbar-item" to="/addressBook" name="addressBook" icon="friends-o">通讯录</van-tabbar-item>
+    <van-tabbar-item class="tabbar-item" to="/chatList" name="chat" icon="chat-o" :badge="unread" :badge-props="{ content: unread, max: 99 }">聊天</van-tabbar-item>
+    <van-tabbar-item class="tabbar-item" to="/person" name="person" icon="user-o">个人</van-tabbar-item>
   </van-tabbar>
 </template>
 
@@ -25,7 +25,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 :root {
   --van-nav-bar-height: 54px;
 }

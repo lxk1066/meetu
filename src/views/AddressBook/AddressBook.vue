@@ -1,7 +1,10 @@
 <template>
   <van-nav-bar title="通讯录" />
   <div class="function-area">
-    <div class="function-item notice">通知</div>
+    <van-badge :content="allNoticesNumber" style="width: 40%;">
+      <div class="function-item notice" style="width: 100%;"
+       @click="$router.push({ name: 'notices' })">通知</div>
+    </van-badge>
     <div class="function-item add-friends" @click="showSearchFriendPopup=true">添加好友</div>
     <SearchFriend v-if="showSearchFriendPopup" @closePopup="showSearchFriendPopup=false"></SearchFriend>
   </div>
@@ -9,8 +12,24 @@
     <van-index-bar :index-list="indexAlphabet">
       <div v-for="(item, index1) in indexAlphabet" :key="index1">
         <van-index-anchor :index="item" >{{item}}</van-index-anchor>
-        <van-cell clickable v-for="(friend, index2) in indexedFriends[item]" :key="index2" :title="friend.name"
-                  :to="{ name: 'detail', params: { uid: friend.id } }" />
+        <van-cell clickable v-for="(friend, index2) in indexedFriends[item]" :key="index2"
+                  :to="{ name: 'detail', params: { uid: friend.id } }" >
+          <template #title>
+            <div class="address-book-item-title">
+              <van-image
+                class="user-profile"
+                round
+                width="2.5rem"
+                height="2.5rem"
+                :src="getProfile(friend.profile)"
+                error-icon="user-circle-o"
+                loading-icon="user-circle-o"
+                fit="cover"
+              />
+              <h4 class="username">{{friend.username}}</h4>
+            </div>
+          </template>
+        </van-cell>
       </div>
     </van-index-bar>
     <van-empty
@@ -25,18 +44,22 @@
 
 <script>
 import { ref, onBeforeMount } from 'vue'
-import { NavBar, IndexBar, IndexAnchor, Cell, Empty, showFailToast } from 'vant'
+import { Badge, NavBar, IndexBar, IndexAnchor, Cell, Image, Empty, showFailToast } from 'vant'
 import SearchFriend from '@/components/AddressBook/SearchFriend'
 import getAllFriends from '@/api/getAllFriends'
 import getMuidUserInfo from '@/api/getMuidUserInfo'
+import getProfile from '@/api/getProfile'
+import getAllNoticesNumber from '@/api/notice/getAllNoticesNumber'
 import pinyin from 'js-pinyin'
 export default {
   name: 'meetuAddressBook',
   components: {
+    [Badge.name]: Badge,
     [NavBar.name]: NavBar,
     [IndexAnchor.name]: IndexAnchor,
     [IndexBar.name]: IndexBar,
     [Cell.name]: Cell,
+    [Image.name]: Image,
     [Empty.name]: Empty,
     SearchFriend
   },
@@ -44,17 +67,26 @@ export default {
     const allFriends = ref([])
     const indexAlphabet = ref([])
     const indexedFriends = ref({})
+    const allNoticesNumber = ref(0)
     const showSearchFriendPopup = ref(false)
     onBeforeMount(async () => {
       const token = localStorage.getItem('meetu_jwt_token')
-      const { data: res } = await getAllFriends(token)
-      if (res.code === 200) {
-        const { friends } = res.data
+      const { data: res1 } = await getAllFriends(token)
+      if (res1.code === 200) {
+        const { friends } = res1.data
         for (const item of friends) {
           const { data: result } = await getMuidUserInfo(item)
           if (result.code === 200) {
-            allFriends.value.push({ id: result.data.uid, username: result.data.username })
+            allFriends.value.push({
+              id: result.data.uid,
+              username: result.data.username,
+              profile: result.data.profile
+            })
           }
+        }
+        const { data: res2 } = await getAllNoticesNumber(token)
+        if (res2.code === 200) {
+          allNoticesNumber.value = res2.data.number
         }
       } else {
         showFailToast('网络错误')
@@ -66,9 +98,9 @@ export default {
     const getIndexedData = (source) => {
       pinyin.setOptions({ checkPolyphone: false, charCase: 0 })
       const alphabet = [] // 索引字母数组
-      source = source.map(item => ({ name: item.username, id: item.id }))
+
       source.forEach(item => {
-        const name = item.name
+        const name = item.username
         // 获取每一个name值第一个字的大写首字母（传入的 name 是中文时默认得到大写字母，name 是英文时按照原字符串输出，可能是小写）
         const initial = pinyin.getCamelChars(name).substring(0, 1).toUpperCase()
         item.initial = initial
@@ -90,7 +122,7 @@ export default {
       return { alphabet, resultData }
     }
 
-    return { allFriends, indexAlphabet, indexedFriends, showSearchFriendPopup }
+    return { allFriends, indexAlphabet, indexedFriends, allNoticesNumber, showSearchFriendPopup, getProfile }
   }
 }
 </script>
@@ -121,5 +153,17 @@ export default {
 }
 .address-book {
   margin-top: 10px;
+  .address-book-item-title {
+    display: flex;
+    align-items: center;
+  }
+  .username {
+    margin: 0;
+    padding: 0 10px;
+  }
+  .user-profile {
+    float: left;
+    line-height: 90%;
+  }
 }
 </style>

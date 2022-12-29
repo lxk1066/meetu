@@ -113,7 +113,7 @@ export default {
 .settings-box {
   background-color: #ebebec;
   padding-top: 5px;
-  height: calc(100% - 50px);
+  min-height: calc(100% - 50px);
   .muid-cell-title {
     color: #cd93ff;
     text-decoration: underline;

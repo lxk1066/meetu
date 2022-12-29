@@ -38,7 +38,12 @@ const routes = [
     path: '/addFriend/:uid',
     name: 'addFriend',
     props: true,
-    component: () => import('@/views/User/addFriendRequest')
+    component: () => import('@/views/User/AddFriendRequest')
+  },
+  { // 通知
+    path: '/notices',
+    name: 'notices',
+    component: () => import('@/views/User/Notices')
   },
   { // 通讯录
     path: '/addressBook',
@@ -80,7 +85,7 @@ const routes = [
     name: 'changePassword',
     props: true,
     meta: { connected: false }, // 表示不需要与服务器建立socket连接
-    component: () => import('@/views/User/changePassword')
+    component: () => import('@/views/User/ChangePassword')
   }
 ]
 

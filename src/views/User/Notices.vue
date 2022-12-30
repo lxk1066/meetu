@@ -3,41 +3,59 @@
     title="通知"
     left-arrow
     @click-left="goBack" />
-  <van-cell v-for="item in allInfo" :key="item.time">
-    <template #title>
-      <div class="notice-item-title">
-        <van-image
-          class="user-profile"
-          round
-          width="2.5rem"
-          height="2.5rem"
-          :src="getProfile(item.profile)"
-          error-icon="user-circle-o"
-          loading-icon="user-circle-o"
-          fit="cover"
-        />
-        <p class="notice">
-          <span class="username" @click="$router.push({ name: 'detail', params: { uid: item.uid } })">
-            {{item.username}}
-          </span>
-          申请加你为好友
-        </p>
-      </div>
+  <van-swipe-cell v-for="(item, index) in allInfo" :key="item.id">
+    <template #left>
+      <van-button square type="primary" text="同意" @click="agree(index)" v-if="item.type==='addFriend'" />
     </template>
-  </van-cell>
+    <van-cell>
+      <template #title>
+        <div class="notice-item-title">
+          <van-image
+            class="user-profile"
+            round
+            width="4.5rem"
+            :src="getProfile(item.profile)"
+            error-icon="user-circle-o"
+            loading-icon="user-circle-o"
+            fit="cover"
+          />
+          <p class="notice">
+            <span>
+              <span class="username" @click="$router.push({ name: 'detail', params: { uid: item.uid } })">
+              {{item.username}}
+              </span>
+              <span v-if="item.type==='addFriend'">申请加你为好友</span>
+              <span v-else-if="item.type==='disagreeFriend'">拒绝了你的好友请求</span>
+            </span>
+            <span class="message van-ellipsis">{{item.message}}</span>
+          </p>
+        </div>
+      </template>
+      <template #value>
+        <div style="font-size: 10px">{{formatTimeStamp(item.time, 'auto')}}</div>
+      </template>
+    </van-cell>
+    <template #right>
+      <van-button square type="danger" text="拒绝" @click="disagree(index)" v-if="item.type==='addFriend'" />
+      <van-button square type="primary" text="删除" @click="delNotice(index)" />
+    </template>
+  </van-swipe-cell>
 </template>
 
 <script>
 import { ref, onBeforeMount } from 'vue'
-import { NavBar, Cell, Image, showFailToast } from 'vant'
+import { SwipeCell, NavBar, Cell, Image, Button, showFailToast, showSuccessToast } from 'vant'
 import { useRouter } from 'vue-router'
 import getAllNotices from '@/api/notice/getAllNotices'
 import getMuidUserInfo from '@/api/getMuidUserInfo'
 import getProfile from '@/api/getProfile'
+import agreeFriendRequest from '@/api/notice/agreeFriendRequest'
+import disagreeFriendRequest from '@/api/notice/disagreeFriendRequest'
+import formatTimeStamp from '@/utils/formatTimeStamp'
 
 export default {
   name: 'meetuNotices',
-  components: { [NavBar.name]: NavBar, [Cell.name]: Cell, [Image.name]: Image },
+  components: { [SwipeCell.name]: SwipeCell, [Button.name]: Button, [NavBar.name]: NavBar, [Cell.name]: Cell, [Image.name]: Image },
   setup () {
     const allNotices = ref([])
     const allInfo = ref([])
@@ -50,7 +68,15 @@ export default {
         allNotices.value = res.data.notices
         for (const item of allNotices.value) {
           const info = await getUserInfo(item.from)
-          allInfo.value.push({ uid: info.uid, username: info.username, profile: info.profile, type: item.type, time: item.time })
+          allInfo.value.push({
+            id: item.id,
+            uid: info.uid,
+            username: info.username,
+            profile: info.profile,
+            message: item.message,
+            type: item.type,
+            time: item.time
+          })
         }
       } else {
         showFailToast('数据获取失败')
@@ -65,20 +91,60 @@ export default {
       }
     }
 
-    return { allInfo, allNotices, getProfile, goBack }
+    const agree = async (index) => {
+      // 同意好友申请
+      const token = localStorage.getItem('meetu_jwt_token')
+      const { data: res } = await agreeFriendRequest(token, allNotices.value[index].id)
+      if (res.code === 200) {
+        showSuccessToast('好友添加成功')
+        router.push({ name: 'chatWindow', params: { uid: allInfo[index].uid } })
+      } else {
+        showFailToast(res.msg)
+        location.reload()
+      }
+    }
+    const disagree = async (index) => {
+      // 拒绝好友申请
+      const token = localStorage.getItem('meetu_jwt_token')
+      const { data: res } = await disagreeFriendRequest(token, allNotices.value[index].id)
+      if (res.code === 200) {
+        allNotices.value.splice(index, 1)
+        allInfo.value.splice(index, 1)
+      } else {
+        allNotices.value.splice(index, 1)
+        allInfo.value.splice(index, 1)
+        showFailToast(res.msg)
+      }
+    }
+    const delNotice = (index) => {
+      // 删除
+    }
+
+    return { allInfo, allNotices, getProfile, goBack, formatTimeStamp, agree, disagree, delNotice }
   }
 }
 </script>
 
 <style lang="less" scoped>
+:deep(.van-swipe-cell__left > .van-button), :deep(.van-swipe-cell__right > .van-button) {
+  height: 100%;
+}
+:deep(.van-cell__title) {
+  flex-grow: 2.5;
+}
 .notice-item-title {
   display: flex;
   align-items: center;
   .notice {
     margin: 0;
-    padding: 0 10px;
+    padding: 5px 10px;
+    font-size: 15px;
     .username {
       color: #cd93ff;
+    }
+    .message {
+      display: inline-block;
+      color: #afafaf;
     }
   }
   .user-profile {

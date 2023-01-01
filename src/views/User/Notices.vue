@@ -13,7 +13,8 @@
           <van-image
             class="user-profile"
             round
-            width="4.5rem"
+            width="3rem"
+            height="3rem"
             :src="getProfile(item.profile)"
             error-icon="user-circle-o"
             loading-icon="user-circle-o"
@@ -51,6 +52,7 @@ import getMuidUserInfo from '@/api/getMuidUserInfo'
 import getProfile from '@/api/getProfile'
 import agreeFriendRequest from '@/api/notice/agreeFriendRequest'
 import disagreeFriendRequest from '@/api/notice/disagreeFriendRequest'
+import deleteNotice from '@/api/notice/deleteNotice'
 import formatTimeStamp from '@/utils/formatTimeStamp'
 
 export default {
@@ -116,8 +118,16 @@ export default {
         showFailToast(res.msg)
       }
     }
-    const delNotice = (index) => {
+    const delNotice = async (index) => {
       // 删除
+      const token = localStorage.getItem('meetu_jwt_token')
+      const { data: res } = await deleteNotice(token, allNotices.value[index].id)
+      if (res.code === 200) {
+        allNotices.value.splice(index, 1)
+        allInfo.value.splice(index, 1)
+      } else {
+        showFailToast(res.msg)
+      }
     }
 
     return { allInfo, allNotices, getProfile, goBack, formatTimeStamp, agree, disagree, delNotice }
@@ -143,7 +153,7 @@ export default {
       color: #cd93ff;
     }
     .message {
-      display: inline-block;
+      display: block;
       color: #afafaf;
     }
   }

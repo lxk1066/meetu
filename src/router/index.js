@@ -54,6 +54,14 @@ const routes = [
     ],
     meta: { to: 'addressBook' }
   },
+  { // 广场
+    path: '/square',
+    name: 'square',
+    component: () => import('@/views/Home'),
+    children: [
+      { path: '', name: 'square', component: () => import('@/views/Square/Square') }
+    ]
+  },
   { // 匹配
     path: '/search',
     name: 'search',

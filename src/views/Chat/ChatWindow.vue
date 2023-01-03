@@ -143,15 +143,15 @@ export default {
       }, 1000 * 15)
 
       // 从本地数据库取出所有的聊天记录并渲染到页面上
-      const localMsgList = await getAllMessages(ownInfo.id, otherInfo.id)
-      localMsgList.forEach(item => {
-        if (!item.hasRead) { putMessageReaded(item.msg_id, item.from_uid, item.to_uid, item.message, item.time) }
-        if (item.from_uid === ownInfo.id) {
+      const localMsgList = await getAllMessages(ownInfo.id, ownInfo.id, otherInfo.id)
+      for (const item of localMsgList) {
+        if (!item.hasRead) { await putMessageReaded(ownInfo.id, item.msg_id, item.from_uid, item.to_uid, item.message, item.time) }
+        if (item.from_uid.toString() === ownInfo.id) {
           createMsg('string', 'other', item.message)
-        } else if (item.from_uid === otherInfo.id) {
+        } else if (item.from_uid.toString() === otherInfo.id) {
           createMsg('string', 'own', item.message)
         }
-      })
+      }
       scrollToBottom()
     })
 
@@ -175,7 +175,7 @@ export default {
         console.log('chatWindow', fromId, msg)
         createMsg('string', 'own', msg)
         scrollToBottom()
-        addMessage({ from_uid: fromId, to_uid: toId, message: msg, time: time, hasRead: false })
+        addMessage(ownInfo.id, fromId, toId, { from_uid: fromId, to_uid: toId, message: msg, time: time, hasRead: false })
       })
     })
 
@@ -188,19 +188,20 @@ export default {
       if (antiShakeFlag.value) { // 实现防抖处理，避免出现一个消息发送多次的情况
         antiShakeFlag.value = false
         if (message.value) {
+          const time = +new Date()
           createMsg('string', 'other', message.value)
-          socket.emit('private-message', otherInfo.id, message.value, +new Date())
+          socket.emit('private-message', otherInfo.id, message.value, time)
           // 让input框重新获取焦点，同时跳转到聊天窗口的最底下
           msgInput.value.focus()
           scrollToBottom()
 
           // 如果对方此时在线，那么发出去的消息都需要缓存到本地
           if (anotherIsOnline.value) {
-            addMessage({
+            addMessage(ownInfo.id, ownInfo.id, otherInfo.id, {
               from_uid: ownInfo.id,
               to_uid: otherInfo.id,
               message: message.value,
-              time: +new Date(),
+              time: time,
               hasRead: true
             })
           }

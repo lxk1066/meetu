@@ -70,6 +70,12 @@
         </template>
       </van-swipe-cell>
 
+      <van-empty
+        v-if="!chatList.length && !topList.length"
+        image-size="120"
+        description="这里空空如也，快去和朋友一起聊天吧~"
+        style="margin-top: 20px;"
+      />
     </div>
   </van-pull-refresh>
 </template>
@@ -78,13 +84,14 @@
 import { ref, watch, onMounted, inject } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
-import { showConfirmDialog, Button, Image, Cell, PullRefresh, SwipeCell, Badge, showToast } from 'vant'
+import { showConfirmDialog, Button, Image, Cell, PullRefresh, SwipeCell, Badge, Empty, showToast } from 'vant'
 import getPersonInfo from '@/api/getPersonInfo'
 import getProfile from '@/api/getProfile'
-import getAllUserId from '@/api/getAllUserId'
+import { getDatabases } from '@/utils/IndexedDB/getDatabases'
 import formatTimeStamp from '@/utils/formatTimeStamp'
 import { addMessage } from '@/utils/IndexedDB/addMessage'
 import { getLastMessage } from '@/utils/IndexedDB/getLastMessage'
+import { clearMessages } from '@/utils/IndexedDB/clearMessages'
 
 export default {
   name: 'meetuChatList',
@@ -94,7 +101,8 @@ export default {
     [Image.name]: Image,
     [SwipeCell.name]: SwipeCell,
     [Button.name]: Button,
-    [Badge.name]: Badge
+    [Badge.name]: Badge,
+    [Empty.name]: Empty
   },
   setup () {
     const loading = ref(false)
@@ -105,12 +113,9 @@ export default {
 
     const socket = inject('socket')
 
-    const chatList = ref([
-      // { id: 61, name: '会飞的小企鹅', description: '吃午饭了没？一起去搓一顿？', time: 1668182400000, profile: 'https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg' },
-      // { id: 15, name: '簡單の緈鍢', description: '你猜我刚刚看到了什么？', time: 1668009600000, profile: 'https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg' },
-      // { id: 55, name: '若小曦', description: '什么时候可以去go shopping呢[恼]', time: 1667232000000, profile: 'https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg' },
-      // { id: 8, name: '#凯莎大帝#', description: '点个关注，追番不迷路~', time: 1668096000000, profile: 'https://fastly.jsdelivr.net/npm/@vant/assets/cat.jpeg' }
-    ])
+    const ownUId = ref('')
+
+    const chatList = ref([])
     // topList用于存储置顶列表中的数据
     const topList = ref([])
 
@@ -118,15 +123,17 @@ export default {
     const getUserInfo = async (ownUid, otherUid) => {
       const { data: res } = await getPersonInfo(otherUid)
       if (res.code === 200) {
-        const lastMsg = await getLastMessage(otherUid.toString(), ownUid.toString())
-        chatList.value.push({
-          id: otherUid,
-          name: res.data.username,
-          description: lastMsg[0] ? lastMsg[0].message : '',
-          time: lastMsg[0] ? lastMsg[0].time : +new Date(),
-          hasRead: lastMsg[0] ? lastMsg[0].hasRead : true,
-          profile: getProfile(res.data.profile)
-        })
+        const lastMsg = await getLastMessage(ownUid.toString(), otherUid.toString(), ownUid.toString())
+        if (lastMsg[0]) { // 如果聊天记录是空的，那就不展示在聊天列表
+          chatList.value.push({
+            id: otherUid,
+            name: res.data.username,
+            description: lastMsg[0].message,
+            time: lastMsg[0].time,
+            hasRead: lastMsg[0].hasRead,
+            profile: getProfile(res.data.profile)
+          })
+        }
         chatList.value = objArraySort(chatList.value, 'time')
       }
     }
@@ -177,7 +184,10 @@ export default {
 
     // 点击关闭按钮的回调
     const beforeClose = (arrList, index) => {
-      showConfirmDialog({ title: '提示', message: '确认删除么？' }).then(() => {
+      showConfirmDialog({ title: '提示', message: '确认从聊天列表中删除么？确认后聊天记录也会被一并删除哦？' }).then(async () => {
+        const otherUid = arrList[index].id
+        const ownUid = ownUId.value
+        await clearMessages(ownUid, ownUid, otherUid)
         arrList.splice(index, 1)
       })
     }
@@ -220,15 +230,16 @@ export default {
     }, { deep: true })
 
     onMounted(async () => {
-      // 拿到所有用户的id然后循环调用 getUserInfo
+      // 取出本地存储中的所有聊天记录然后循环调用 getUserInfo
       const token = localStorage.getItem('meetu_jwt_token')
       const uid = localStorage.getItem('meetu_uid')
       if (token && uid) {
-        const { data: res } = await getAllUserId(token)
-        if (res.code === 200) {
-          res.data.forEach(async item => {
-            await getUserInfo(uid, item.uid)
-          })
+        ownUId.value = uid
+        const dbs = await getDatabases()
+        for (const item of dbs) {
+          const splits = item.name.split('_')
+          const otherUid = splits[2] === uid.toString() ? splits[3] : splits[2]
+          await getUserInfo(uid, otherUid)
         }
       }
 
@@ -246,8 +257,7 @@ export default {
         await newMsg(fromId, msg)
 
         // 将接收到的消息保存到本地
-        addMessage({ from_uid: fromId, to_uid: toId, message: msg, time: time, hasRead: false })
-        addMessage({ from_uid: fromId, to_uid: toId, message: msg, time: time, hasRead: false })
+        addMessage(uid, fromId, toId, { from_uid: fromId, to_uid: toId, message: msg, time: time, hasRead: false })
       })
     })
     // 点击聊天列表中的某一个，跳转到对应的聊天窗口

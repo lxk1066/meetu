@@ -28,11 +28,11 @@ function formatTimeStamp (timeStamp, mode) {
       return `${hour}:${minute}`
     } else {
       return !parseInt(hour) && !parseInt(minute)
-        ? `${year}-${month}-${date}`
-        : `${year}-${month}-${date} ${hour}:${minute}`
+        ? `${year}/${month}/${date}`
+        : `${year}/${month}/${date} ${hour}:${minute}`
     }
   } else {
-    return `${year}-${month}-${date} ${hour}:${minute}`
+    return `${year}/${month}/${date} ${hour}:${minute}`
   }
 }
 

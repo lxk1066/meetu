@@ -3,6 +3,12 @@
     title="通知"
     left-arrow
     @click-left="goBack" />
+  <van-empty
+    v-if="!allNotices.length"
+    image-size="120"
+    description="通知都处理完啦，快去聊天吧~"
+    style="margin-top: 20px;"
+  />
   <van-swipe-cell v-for="(item, index) in allInfo" :key="item.id">
     <template #left>
       <van-button square type="primary" text="同意" @click="agree(index)" v-if="item.type==='addFriend'" />
@@ -45,7 +51,7 @@
 
 <script>
 import { ref, onBeforeMount } from 'vue'
-import { SwipeCell, NavBar, Cell, Image, Button, showFailToast, showSuccessToast } from 'vant'
+import { SwipeCell, NavBar, Cell, Image, Button, Empty, showFailToast, showSuccessToast } from 'vant'
 import { useRouter } from 'vue-router'
 import getAllNotices from '@/api/notice/getAllNotices'
 import getMuidUserInfo from '@/api/getMuidUserInfo'
@@ -57,7 +63,14 @@ import formatTimeStamp from '@/utils/formatTimeStamp'
 
 export default {
   name: 'meetuNotices',
-  components: { [SwipeCell.name]: SwipeCell, [Button.name]: Button, [NavBar.name]: NavBar, [Cell.name]: Cell, [Image.name]: Image },
+  components: {
+    [SwipeCell.name]: SwipeCell,
+    [Button.name]: Button,
+    [NavBar.name]: NavBar,
+    [Cell.name]: Cell,
+    [Image.name]: Image,
+    [Empty.name]: Empty
+  },
   setup () {
     const allNotices = ref([])
     const allInfo = ref([])

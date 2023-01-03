@@ -12,7 +12,6 @@
     "axios": "^1.2.0",
     "clipboard": "^2.0.11",
     "core-js": "^3.8.3",
-    "dexie": "^3.2.2",
     "js-pinyin": "^0.1.9",
     "socket.io-client": "^4.5.4",
     "vant": "^4.0.0",

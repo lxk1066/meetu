@@ -62,6 +62,11 @@ const routes = [
       { path: '', name: 'square', component: () => import('@/views/Square/Square') }
     ]
   },
+  { // 发布文章
+    path: '/pubArticle',
+    name: 'pubArticle',
+    component: () => import('@/views/Square/PublishArticle')
+  },
   { // 匹配
     path: '/search',
     name: 'search',

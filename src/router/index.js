@@ -63,9 +63,9 @@ const routes = [
     ]
   },
   { // 发布文章
-    path: '/pubArticle',
-    name: 'pubArticle',
-    component: () => import('@/views/Square/PublishArticle')
+    path: '/pubPost',
+    name: 'pubPost',
+    component: () => import('@/views/Square/publishPost')
   },
   { // 匹配
     path: '/search',

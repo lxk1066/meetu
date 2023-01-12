@@ -152,7 +152,7 @@ export default {
         }
         const f = convertBase64UrlToBlob(profile.value[0].content) // data为裁剪后的base64位图片
         const fd = new FormData()
-        fd.append('file', f, profile.value[0].file.name)
+        fd.append('profile', f, profile.value[0].file.name)
         // 上传图片数据
         const token = localStorage.getItem('meetu_jwt_token')
         const { data: res } = await uploadProfile(fd, token)
@@ -161,7 +161,9 @@ export default {
           profile.value[0].message = '上传成功'
           showToast('头像上传成功！')
         } else {
-          showToast('头像上传失败！')
+          profile.value[0].status = 'done'
+          profile.value[0].message = '上传失败'
+          showToast({ message: '头像上传失败！' + res.msg, duration: 2800 })
         }
       }
     }

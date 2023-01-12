@@ -45,7 +45,7 @@ export default {
       { text: '图文', icon: 'photo' }
     ]
     const onSelect = () => {
-      router.push({ name: 'pubArticle' })
+      router.push({ name: 'pubPost' })
     }
     const onRefresh = () => {
       // 下拉刷新

@@ -19,41 +19,112 @@
       <div class="placeholder"></div>
       <div class="content-box">
         <van-pull-refresh v-model="loading" success-text="刷新成功" @refresh="onRefresh" :style="{ minHeight: '800px' }">
-          <Article />
-          <Article />
-<!--          <Article />-->
+          <van-list v-model:loading="listLoading" :finished="listFinished" :immediate-check="false"
+                    loading-text="拼命加载中" finished-text="o(︶︿︶)o再怎么找都没有啦！" @load="onLoad">
+            <Post v-for="item in postList" :key="item.art_id"
+                  :post-id="item.art_id"
+                  :uid="item.uid"
+                  :username="item.username"
+                  :profile="item.profile"
+                  :title="item.title"
+                  :content="item.content"
+                  :pictures="item.pictures"
+                  :updated-time="item.updated_time"
+            />
+          </van-list>
         </van-pull-refresh>
+        <van-back-top bottom="10vh" />
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { Icon, Button, Popover, Image, PullRefresh } from 'vant'
-import Article from '@/components/Square/Article.vue'
+import { Icon, Button, Popover, Image, PullRefresh, List, BackTop, showFailToast } from 'vant'
+import Post from '@/components/Square/Post.vue'
+import getPostList from '@/api/square/getPostList'
+import getMuidUserInfo from '@/api/getMuidUserInfo'
 
 export default {
   name: 'meetuSquare',
-  components: { [Icon.name]: Icon, [Button.name]: Button, [Popover.name]: Popover, [Image.name]: Image, Article, [PullRefresh.name]: PullRefresh },
+  components: {
+    [Icon.name]: Icon,
+    [Button.name]: Button,
+    [Popover.name]: Popover,
+    [Image.name]: Image,
+    [PullRefresh.name]: PullRefresh,
+    [List.name]: List,
+    [BackTop.name]: BackTop,
+    Post
+  },
   setup () {
     const router = useRouter()
     const loading = ref(false)
+    const listLoading = ref(false)
+    const listFinished = ref(false)
     const showPopover = ref(false)
+    const postList = ref([])
     const actions = [
       { text: '图文', icon: 'photo' }
     ]
+    onMounted(async () => {
+      loading.value = true
+      postList.value = []
+      const { data: res } = await getPostList('time', 0, 10)
+      if (res.code === 200) {
+        postList.value = res.data.result
+        loading.value = false
+        loadUserInfo().catch(() => {
+          showFailToast({ message: '部分用户信息获取失败', position: 'bottom' })
+        })
+      }
+    })
+    const loadUserInfo = async () => {
+      for (const item of postList.value) {
+        const { data: res } = await getMuidUserInfo(item.muid)
+        if (res.code === 200) {
+          item.uid = res.data.uid
+          item.username = res.data.username
+          item.profile = res.data.profile
+        } else {
+          item.uid = 0
+          item.username = 'unknown'
+          item.profile = 'default.png'
+        }
+      }
+    }
     const onSelect = () => {
       router.push({ name: 'pubPost' })
     }
-    const onRefresh = () => {
+    const onRefresh = async () => {
       // 下拉刷新
-      setTimeout(() => {
+      listFinished.value = false
+      const { data: res } = await getPostList('time', 0, 10)
+      if (res.code === 200) {
+        postList.value = []
+        postList.value = res.data.result
         loading.value = false
-      }, 1000)
+        loadUserInfo().catch(() => {
+          showFailToast({ message: '部分用户信息获取失败', position: 'bottom' })
+        })
+      }
     }
-    return { loading, actions, showPopover, onSelect, onRefresh }
+    const onLoad = async () => {
+      const { data: res } = await getPostList('time', postList.value.length, 10)
+      if (res.code === 200) {
+        if (res.data.result.length === 0) {
+          listFinished.value = true
+        } else {
+          postList.value.push(...res.data.result)
+        }
+        listLoading.value = false
+      } else {
+        showFailToast({ message: '获取失败', position: 'bottom' })
+      }
+    }
+    return { loading, listLoading, listFinished, actions, showPopover, postList, onSelect, onRefresh, onLoad }
   }
 }
 </script>

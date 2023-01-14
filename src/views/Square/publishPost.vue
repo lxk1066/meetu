@@ -114,6 +114,7 @@ export default {
           if (res.code === 200) {
             showSuccessToast('发布成功')
             submitFlag.value = false
+            router.push({ name: 'square' })
           } else {
             showFailToast({ message: '发布失败, ' + res.msg, duration: 2800 })
             submitFlag.value = false

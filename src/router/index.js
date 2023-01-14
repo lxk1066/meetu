@@ -56,16 +56,21 @@ const routes = [
   },
   { // 广场
     path: '/square',
-    name: 'square',
     component: () => import('@/views/Home'),
     children: [
       { path: '', name: 'square', component: () => import('@/views/Square/Square') }
     ]
   },
   { // 发布文章
-    path: '/pubPost',
+    path: '/square/pubPost',
     name: 'pubPost',
     component: () => import('@/views/Square/publishPost')
+  },
+  { // 帖子详情页
+    path: '/square/postDetail/:postId',
+    name: 'postDetail',
+    props: true,
+    component: () => import('@/views/Square/PostDetail')
   },
   { // 匹配
     path: '/search',
@@ -103,7 +108,7 @@ const routes = [
 ]
 
 const router = createRouter({
-  history: createWebHashHistory(),
+  history: createWebHashHistory('/#'),
   routes
 })
 router.beforeEach((to, from, next) => {

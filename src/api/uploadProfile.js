@@ -6,7 +6,7 @@ import request from '@/utils/request'
 function uploadProfile (fileData, token) {
   return request({
     method: 'post',
-    url: '/api/user/upload',
+    url: '/api/user/uploadProfile',
     data: fileData,
     headers: { Authorization: token }
   })

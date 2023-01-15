@@ -26,7 +26,7 @@ function formatTimeStamp (timeStamp, mode) {
     const nowStamp = +new Date(new Date().toLocaleDateString()).getTime()
     if (timeStamp >= nowStamp) {
       return `${hour}:${minute}`
-    } else if ((timeStamp - nowStamp) <= 86400) {
+    } else if ((nowStamp - timeStamp) <= 86400) {
       return `昨天 ${hour}:${minute}`
     } else {
       return !parseInt(hour) && !parseInt(minute)

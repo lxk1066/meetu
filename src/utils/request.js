@@ -1,7 +1,8 @@
 import axios from 'axios'
+import { BackendURL } from '../../project.config'
 
 const request = axios.create({
-  baseURL: 'http://127.0.0.1:8000'
+  baseURL: BackendURL
 })
 
 export default request

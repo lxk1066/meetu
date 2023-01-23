@@ -21,7 +21,7 @@
     </div>
     <div class="article-content" @click="openDetail">
       <div class="title van-ellipsis">{{props.title}}</div>
-      <div class="message van-multi-ellipsis--l2">{{props.content}}</div>
+      <div class="message van-multi-ellipsis--l3">{{props.content}}</div>
       <div class="picture" ref="picturesRef">
         <van-image
           width="6rem"
@@ -37,13 +37,13 @@
     </div>
     <div class="article-function">
       <div class="dianzan">
-        <img src="@/assets/dianzan.svg" alt="" />
+        <img src="@/assets/imgs/dianzan.svg" alt="" />
       </div>
       <div class="pinglun">
-        <img src="@/assets/pinglun.svg" alt="" />
+        <img src="@/assets/imgs/pinglun.svg" alt="" />
       </div>
       <div class="zhuanfa">
-        <img src="@/assets/zhuanfa.svg" alt="" />
+        <img src="@/assets/imgs/zhuanfa.svg" alt="" />
       </div>
     </div>
   </div>
@@ -176,10 +176,11 @@ export default {
     }
     .title {
       font-size: 18px;
+      font-weight: bold;
     }
     .message {
+      margin-top: 2px;
       font-size: 15px;
-      background-color: #efefef;
     }
   }
   .article-function {

@@ -112,6 +112,10 @@ export default {
       }
     }
     const onLoad = async () => {
+      if (!postList.value.length) {
+        listLoading.value = false
+        return false
+      }
       const { data: res } = await getPostList('time', postList.value.length, 10)
       if (res.code === 200) {
         if (res.data.result.length === 0) {

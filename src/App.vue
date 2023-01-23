@@ -1,6 +1,6 @@
 <template>
   <router-view />
-  <Login v-if="!$route.path.startsWith('/changePassword/')" />
+  <Login v-if="$route.meta.auth" />
 </template>
 
 <script>
@@ -56,8 +56,31 @@ export default {
 </script>
 
 <style lang="less">
+@font-face {
+  font-family: 'Noto Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("@/assets/fonts/NotoSans-Medium.ttf");
+}
+@font-face {
+  font-family: 'Open Sans';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("@/assets/fonts/OpenSans-Medium.ttf");
+}
+@font-face {
+  font-family: 'Noto Sans SC';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("@/assets/fonts/NotoSansSC-Medium.otf");
+}
 body, html, #app {
   width: 100%;
   height: 100%;
+
+  font-family: 'Noto Sans', 'Open Sans', 'Noto Sans SC', 'Roboto Light', sans-serif;
 }
 </style>

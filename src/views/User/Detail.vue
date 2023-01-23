@@ -60,7 +60,7 @@ export default {
   setup (props) {
     const router = useRouter()
     const isEmpty = ref(true)
-    const headerImage = ref(getProfile('default.png'))
+    const headerImage = ref(getProfile('header-background.jpeg'))
     const userProfile = ref('')
     const gender = ref('')
     const username = ref('')
@@ -161,7 +161,7 @@ export default {
   z-index: 1;
   width: 100%;
   height: 40%;
-  background-position: top left;
+  background-position: center center;
   background-repeat: no-repeat;
   //background-position: 10 100%;
   display: flex;
@@ -213,7 +213,7 @@ export default {
     padding: 0;
     max-width: 150px;
     font-size: 13px;
-    color: lightgray;
+    color: #deecf9;
   }
   .muid-touch {
     background-color: rgba(211, 211, 211, 0.42);
@@ -221,34 +221,10 @@ export default {
   }
   #sign {
     margin-top: 10px;
-    background-image: linear-gradient(135deg,#ff75c3,#ffa647,#ffe83f,#9fff5b,#70e2ff,#cd93ff);
+    background-image: linear-gradient(90deg, #7117ea, #ea6060);
     background-clip: text; // 该属性只兼容Chrome
     -webkit-background-clip: text;
     color: transparent;
-  }
-  #setting {
-    display: flex;
-    align-items: center;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    #editSelfInfo {
-      margin-right: 15px;
-      text-decoration: none;
-      a {
-        color: #eae8e8;
-      }
-      a:hover {
-        color: lightgray;
-      }
-    }
-    #settingBtn {
-      color: white;
-      font-size: 20px;
-    }
-    #settingBtn:active {
-      color: #333333;
-    }
   }
 }
 .content-box {

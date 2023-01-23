@@ -1,7 +1,7 @@
 <template>
   <van-nav-bar title="通讯录" />
   <div class="function-area">
-    <van-badge :content="allNoticesNumber" style="width: 40%;">
+    <van-badge :content="allNoticesNumber" :show-zero="false" style="width: 40%;">
       <div class="function-item notice" style="width: 100%;"
        @click="$router.push({ name: 'notices' })">通知</div>
     </van-badge>

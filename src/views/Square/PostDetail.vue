@@ -44,13 +44,13 @@
       </div>
       <div class="post-function">
         <div class="dianzan">
-          <img src="@/assets/dianzan.svg" alt="" />
+          <img src="@/assets/imgs/dianzan.svg" alt="" />
         </div>
         <div class="pinglun">
-          <img src="@/assets/pinglun.svg" alt="" />
+          <img src="@/assets/imgs/pinglun.svg" alt="" />
         </div>
         <div class="zhuanfa">
-          <img src="@/assets/zhuanfa.svg" alt="" />
+          <img src="@/assets/imgs/zhuanfa.svg" alt="" />
         </div>
       </div>
     </div>

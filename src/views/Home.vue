@@ -6,11 +6,11 @@
     <van-tabbar-item class="tabbar-item" to="/square" name="moments">
       <template #icon>
         <div class="moments-icon-box">
-          <img class="moments-icon" src="@/assets/square_active.svg" />
+          <img class="moments-icon" src="@/assets/imgs/square_active.svg" />
         </div>
       </template>
     </van-tabbar-item>
-    <van-tabbar-item class="tabbar-item" to="/chatList" name="chat" icon="chat-o" :badge="unread" :badge-props="{ content: unread, max: 99 }">聊天</van-tabbar-item>
+    <van-tabbar-item class="tabbar-item" to="/chatList" name="chat" icon="chat-o" :badge="unread" :badge-props="{ content: unread, max: 99, showZero: false }">聊天</van-tabbar-item>
     <van-tabbar-item class="tabbar-item" to="/person" name="person" icon="user-o">个人</van-tabbar-item>
   </van-tabbar>
 </template>

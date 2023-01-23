@@ -112,7 +112,16 @@ const router = createRouter({
   routes
 })
 router.beforeEach((to, from, next) => {
-  // if (to.path.startsWith('/changePassword/')) {}
+  const noAuthArr = ['/register', '/login', '/changePassword/', '/square'] // 不需要登录授权的路由数组
+  const authArr = ['/square/pubPost'] // 需要登录授权的路由数组(不含全部)
+  if (authArr.some(item => to.path.startsWith(item))) {
+    to.meta.auth = true
+  } else if (noAuthArr.some(item => to.path.startsWith(item))) {
+    to.meta.auth = false
+  } else {
+    to.meta.auth = true
+  }
+
   next()
 })
 
